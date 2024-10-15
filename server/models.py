@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from datetime import datetime
 
-# from config import db
+
 
 db = SQLAlchemy()
 
@@ -14,6 +14,10 @@ db = SQLAlchemy()
 
 class Product(db.Model, SerializerMixin):
     __tablename__ = 'products'
+    
+    # Serialization rules
+    serialize_rules = ('-supplier.products', '-sales.product')
+
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -43,6 +47,9 @@ class Product(db.Model, SerializerMixin):
 class Supplier(db.Model, SerializerMixin):
     __tablename__ = 'suppliers'
     
+    # Serialization rules
+    serialize_rules = ('-products.supplier',)
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     contact_person = db.Column(db.String(100), nullable=False)
@@ -64,6 +71,9 @@ class Supplier(db.Model, SerializerMixin):
 class Customer(db.Model, SerializerMixin):
     __tablename__ = 'customers'
     
+    # Serialization rules
+    serialize_rules = ('-sales.customer',)
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -82,6 +92,10 @@ class Customer(db.Model, SerializerMixin):
 
 class Sale(db.Model, SerializerMixin):
     __tablename__ = 'sales'
+    
+    # Serialization rules
+    serialize_rules = ('-customer.sales', '-sale_details.sale')
+
      
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -104,11 +118,16 @@ class Sale(db.Model, SerializerMixin):
 class SaleDetail(db.Model, SerializerMixin):
     __tablename__ = 'sales_details'
     
+    # Serialization rules
+    serialize_rules = ('-sale.sale_details', '-product.sales')
+
+    
     id = db.Column(db.Integer, primary_key=True)
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Float, nullable=False)
+    discount = db.Column(db.Float, default=0.0)
     
     # Relationship to Sale and Product
     sale = db.relationship('Sale', back_populates='sale_details')
@@ -119,4 +138,5 @@ class SaleDetail(db.Model, SerializerMixin):
                 f'sale_id={self.sale_id}, ' + \
                 f'product_id={self.product_id}, ' + \
                 f'quantity={self.quantity}, ' + \
-                f'unit_price={self.unit_price})'
+                f'unit_price={self.unit_price}, ' + \
+                f'discount={self.discount})'

@@ -64,7 +64,8 @@ if __name__ == '__main__':
                 sale_id=randint(1, 20),
                 product_id=randint(1, 10),
                 quantity=randint(1, 10),
-                unit_price=randint(1, 20)
+                unit_price=randint(1, 20),
+                discount=round(random.uniform(0, 1), 2) * 100
             )
             db.session.add(saledetail)
             saledetails.append(saledetail)
