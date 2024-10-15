@@ -25,6 +25,9 @@ class Product(db.Model, SerializerMixin):
     # Relationship to Sale-detail
     sales = db.relationship('SaleDetail', back_populates='product')
     
+    # Relationship to Supplier
+    supplier = db.relationship('Supplier', back_populates='products')
+    
     
     def __repr__(self):
         return f'Product(id={self.id}, ' + \
@@ -87,6 +90,8 @@ class Sale(db.Model, SerializerMixin):
     
     # Relationship to Customer and Sale-detail
     sale_details = db.relationship('SaleDetail', back_populates='sale', cascade='all, delete-orphan')
+    customer = db.relationship('Customer', back_populates='sales')
+    
     
     def __repr__(self):
         return f'Sale(id={self.id}, ' + \
